@@ -12,13 +12,14 @@ type IStore interface {
 
 var dbs = map[string]IStore{}
 
-func Register(s IStore) {
+func Register(s IStore) error {
 	name := s.String()
 	if _, ok := dbs[name]; ok {
-		panic(fmt.Errorf("store %s is registered", s))
+		return fmt.Errorf("store %s is registered", s)
 	}
 
 	dbs[name] = s
+	return nil
 }
 
 func ListStores() []string {
