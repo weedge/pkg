@@ -48,6 +48,7 @@ type IListCmd interface {
 	RPop(key []byte) ([]byte, error)
 	RPush(key []byte, args ...[]byte) (int64, error)
 	BLPop(keys [][]byte, timeout time.Duration) ([]interface{}, error)
+	BRPop(keys [][]byte, timeout time.Duration) ([]interface{}, error)
 
 	ICommonCmd
 }
