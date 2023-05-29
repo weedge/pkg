@@ -105,11 +105,11 @@ type IZsetCmd interface {
 	ZIncrBy(key []byte, delta int64, member []byte) (int64, error)
 	ZCount(key []byte, min int64, max int64) (int64, error)
 	ZRank(key []byte, member []byte) (int64, error)
-	ZRemRangeByRank(key []byte, start int, stop int)
+	ZRemRangeByRank(key []byte, start int, stop int) (int64, error)
 	ZRemRangeByScore(key []byte, min int64, max int64) (int64, error)
 	ZRevRange(key []byte, start int, stop int) ([]ScorePair, error)
 	ZRevRank(key []byte, member []byte) (int64, error)
-	ZRevRangeByScore(key []byte, min int64, max int64, offset int, count int)
+	ZRevRangeByScore(key []byte, min int64, max int64, offset int, count int) ([]ScorePair, error)
 	ZRangeGeneric(key []byte, start int, stop int, reverse bool) ([]ScorePair, error)
 	ZRangeByScoreGeneric(key []byte, min int64, max int64, offset int, count int, reverse bool) ([]ScorePair, error)
 	ZUnionStore(destKey []byte, srcKeys [][]byte, weights []int64, aggregate byte) (int64, error)
@@ -144,7 +144,18 @@ type ICommonCmd interface {
 	Persist(key []byte) (int64, error)
 }
 
-type IExtraCmd interface {
-	Clear(key []byte) (int64, error)
-	Mclear(keys ...[]byte) (int64, error)
+type IDB interface {
+	FlushDB() (drop int64, err error)
+
+	DBString() IStringCmd
+	DBList() IListCmd
+	DBHash() IHashCmd
+	DBSet() ISetCmd
+	DBZSet() IZsetCmd
+}
+
+type IStorager interface {
+	Select(index int) (db IDB, err error)
+	Close() error
+	FlushAll() error
 }
