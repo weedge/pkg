@@ -96,6 +96,21 @@ type ScorePair struct {
 	Member []byte
 }
 
+// RangeType:
+//
+//	RangeClose: [min, max]
+//	RangeLpen: (min, max)
+//	RangeRopen: (min, max]
+//	RangeOopen: [min, max)
+type RangeType uint8
+
+const (
+	RangeClose RangeType = 0x00
+	RangeLOpen RangeType = 0x01
+	RangeROpen RangeType = 0x10
+	RangeOpen  RangeType = 0x11
+)
+
 // adapt https://redis.io/commands/?group=sorted-set
 type IZsetCmd interface {
 	ZAdd(key []byte, args ...ScorePair) (int64, error)
@@ -114,9 +129,9 @@ type IZsetCmd interface {
 	ZRangeByScoreGeneric(key []byte, min int64, max int64, offset int, count int, reverse bool) ([]ScorePair, error)
 	ZUnionStore(destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
 	ZInterStore(destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
-	ZRangeByLex(key []byte, min []byte, max []byte, rangeType uint8, offset int, count int) ([][]byte, error)
-	ZRemRangeByLex(key []byte, min []byte, max []byte, rangeType uint8) (int64, error)
-	ZLexCount(key []byte, min []byte, max []byte, rangeType uint8) (int64, error)
+	ZRangeByLex(key []byte, min []byte, max []byte, rangeType RangeType, offset int, count int) ([][]byte, error)
+	ZRemRangeByLex(key []byte, min []byte, max []byte, rangeType RangeType) (int64, error)
+	ZLexCount(key []byte, min []byte, max []byte, rangeType RangeType) (int64, error)
 
 	ICommonCmd
 }
