@@ -152,6 +152,7 @@ type IDB interface {
 	DBHash() IHashCmd
 	DBSet() ISetCmd
 	DBZSet() IZsetCmd
+	DBBitmap() IBitmapCmd
 }
 
 type IStorager interface {
