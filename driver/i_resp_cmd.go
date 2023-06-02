@@ -19,6 +19,7 @@ type IStringCmd interface {
 	SetNX(ctx context.Context, key []byte, value []byte) (n int64, err error)
 	SetEX(ctx context.Context, key []byte, duration int64, value []byte) error
 	SetNXEX(ctx context.Context, key []byte, duration int64, value []byte) error
+	SetXXEX(ctx context.Context, key []byte, duration int64, value []byte) error
 
 	Get(ctx context.Context, key []byte) ([]byte, error)
 	GetSlice(ctx context.Context, key []byte) (openkvdriver.ISlice, error)
@@ -86,14 +87,14 @@ type ISetCmd interface {
 	SAdd(ctx context.Context, key []byte, args ...[]byte) (int64, error)
 	SCard(ctx context.Context, key []byte) (int64, error)
 	SDiff(ctx context.Context, keys ...[]byte) ([][]byte, error)
-	SDiffStore(dstKey []byte, keys ...[]byte) (int64, error)
+	SDiffStore(ctx context.Context, dstKey []byte, keys ...[]byte) (int64, error)
 	SInter(ctx context.Context, keys ...[]byte) ([][]byte, error)
-	SInterStore(dstKey []byte, keys ...[]byte) (int64, error)
+	SInterStore(ctx context.Context, dstKey []byte, keys ...[]byte) (int64, error)
 	SIsMember(ctx context.Context, key []byte, member []byte) (int64, error)
 	SMembers(ctx context.Context, key []byte) ([][]byte, error)
 	SRem(ctx context.Context, key []byte, args ...[]byte) (int64, error)
 	SUnion(ctx context.Context, keys ...[]byte) ([][]byte, error)
-	SUnionStore(dstKey []byte, keys ...[]byte) (int64, error)
+	SUnionStore(ctx context.Context, dstKey []byte, keys ...[]byte) (int64, error)
 
 	ICommonCmd
 }
@@ -134,8 +135,8 @@ type IZsetCmd interface {
 	ZRevRangeByScore(ctx context.Context, key []byte, min int64, max int64, offset int, count int) ([]ScorePair, error)
 	ZRangeGeneric(ctx context.Context, key []byte, start int, stop int, reverse bool) ([]ScorePair, error)
 	ZRangeByScoreGeneric(ctx context.Context, key []byte, min int64, max int64, offset int, count int, reverse bool) ([]ScorePair, error)
-	ZUnionStore(destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
-	ZInterStore(destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
+	ZUnionStore(ctx context.Context, destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
+	ZInterStore(ctx context.Context, destKey []byte, srcKeys [][]byte, weights []int64, aggregate []byte) (int64, error)
 	ZRangeByLex(ctx context.Context, key []byte, min []byte, max []byte, rangeType RangeType, offset int, count int) ([][]byte, error)
 	ZRemRangeByLex(ctx context.Context, key []byte, min []byte, max []byte, rangeType RangeType) (int64, error)
 	ZLexCount(ctx context.Context, key []byte, min []byte, max []byte, rangeType RangeType) (int64, error)
