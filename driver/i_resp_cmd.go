@@ -107,9 +107,9 @@ type ScorePair struct {
 // RangeType:
 //
 //	RangeClose: [min, max]
-//	RangeLpen: (min, max)
-//	RangeRopen: (min, max]
-//	RangeOopen: [min, max)
+//	RangeLopen: (min, max]
+//	RangeRopen: [min, max)
+//	RangeOpen: (min, max)
 type RangeType uint8
 
 const (
