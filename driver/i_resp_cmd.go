@@ -18,8 +18,8 @@ type IStringCmd interface {
 	Set(ctx context.Context, key []byte, value []byte) error
 	SetNX(ctx context.Context, key []byte, value []byte) (n int64, err error)
 	SetEX(ctx context.Context, key []byte, duration int64, value []byte) error
-	SetNXEX(ctx context.Context, key []byte, duration int64, value []byte) error
-	SetXXEX(ctx context.Context, key []byte, duration int64, value []byte) error
+	SetNXEX(ctx context.Context, key []byte, duration int64, value []byte) (n int64, err error)
+	SetXXEX(ctx context.Context, key []byte, duration int64, value []byte) (n int64, err error)
 
 	Get(ctx context.Context, key []byte) ([]byte, error)
 	GetSlice(ctx context.Context, key []byte) (openkvdriver.ISlice, error)
