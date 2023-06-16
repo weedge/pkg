@@ -152,7 +152,7 @@ type IBitmapCmd interface {
 	SetBit(ctx context.Context, key []byte, offset int, on int) (int64, error)
 	GetBit(ctx context.Context, key []byte, offset int) (int64, error)
 
-	ICommonCmd
+	//ICommonCmd
 }
 
 // adapt https://redis.io/commands/?group=generic
