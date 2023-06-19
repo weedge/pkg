@@ -5,7 +5,7 @@ import (
 )
 
 type IStore interface {
-	String() string
+	Name() string
 	Open(path string) (IDB, error)
 	Repair(path string) error
 }
@@ -13,7 +13,7 @@ type IStore interface {
 var dbs = map[string]IStore{}
 
 func Register(s IStore) error {
-	name := s.String()
+	name := s.Name()
 	if _, ok := dbs[name]; ok {
 		return fmt.Errorf("store %s is registered", s)
 	}

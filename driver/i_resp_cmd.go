@@ -3,6 +3,7 @@ package driver
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	openkvdriver "github.com/weedge/pkg/driver/openkv"
@@ -181,5 +182,37 @@ type IDB interface {
 type IStorager interface {
 	Select(ctx context.Context, index int) (db IDB, err error)
 	FlushAll(ctx context.Context) error
+	Open(ctx context.Context) error
 	Close() error
+	Name() string
+}
+
+var storagers = map[string]IStorager{}
+
+func RegisterStorager(s IStorager) error {
+	name := s.Name()
+	if _, ok := storagers[name]; ok {
+		return fmt.Errorf("storager %s is registered", s)
+	}
+
+	storagers[name] = s
+	return nil
+}
+
+func ListStoragers() []string {
+	s := []string{}
+	for k := range storagers {
+		s = append(s, k)
+	}
+
+	return s
+}
+
+func GetStorager(name string) (IStorager, error) {
+	s, ok := storagers[name]
+	if !ok {
+		return nil, fmt.Errorf("kv storager %s is not registered", name)
+	}
+
+	return s, nil
 }
