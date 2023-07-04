@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/weedge/pkg/safer"
 )
 
 var (
@@ -342,15 +344,12 @@ func (s *Runner) RunCancelableTask(task func(context.Context)) (uint64, error) {
 	s.lastID++
 	id := s.lastID
 	s.cancels[id] = cancel
-	s.stop.Add(1)
 
-	go func() {
-		if err := recover(); err != nil {
-			panic(err)
-		}
-		defer s.stop.Done()
-		task(ctx)
-	}()
+	safer.GoSafely(
+		&s.stop, false,
+		func() { task(ctx) },
+		nil, nil,
+	)
 
 	return id, nil
 }
@@ -364,12 +363,11 @@ func (s *Runner) RunTask(task func()) error {
 		return ErrUnavailable
 	}
 
-	s.stop.Add(1)
-
-	go func() {
-		defer s.stop.Done()
-		task()
-	}()
+	safer.GoSafely(
+		&s.stop, false,
+		func() { task() },
+		nil, nil,
+	)
 
 	return nil
 }

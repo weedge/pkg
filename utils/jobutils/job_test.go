@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-func TestPrint(t *testing.T) {
-	println(CacheLinePadSize)
-}
-
 func TestTask(t *testing.T) {
 	runner := NewRunner()
 	c := make(chan struct{})
