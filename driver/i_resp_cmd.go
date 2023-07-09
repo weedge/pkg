@@ -9,6 +9,16 @@ import (
 	openkvdriver "github.com/weedge/pkg/driver/openkv"
 )
 
+const (
+	CmdTypeSrv    = "srv"
+	CmdTypeBitmap = "bitmap"
+	CmdTypeString = "string"
+	CmdTypeHash   = "hash"
+	CmdTypeList   = "list"
+	CmdTypeSet    = "set"
+	CmdTypeZset   = "zset"
+)
+
 type KVPair struct {
 	Key   []byte
 	Value []byte
