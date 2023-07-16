@@ -20,6 +20,14 @@ const (
 	CmdTypeZset    = "zset"
 )
 
+type IReplicaSrvConnCmd interface {
+	// Replicaof client cmd in slave
+	Replicaof(masterAddr string, restart bool, readonly bool) error
+	// Sync internal cmd for slave send sync cmd to master,
+	// slave pull buf (sync logs)
+	Sync(syncLogID uint64) (buf []byte, err error)
+}
+
 type KVPair struct {
 	Key   []byte
 	Value []byte
