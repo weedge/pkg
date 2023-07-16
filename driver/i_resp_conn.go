@@ -76,7 +76,7 @@ func RegisterWriteCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
 	RegisteredWriteCmdAtProposeHandles[cmd] = handle
 }
 
-// RegisterWriteCmdAtPropose
+// RegisterReadCmdAtPropose
 func RegisteredReadCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
 	if _, ok := RegisteredReadCmdAtProposeHandles[cmd]; ok {
 		return
@@ -92,7 +92,7 @@ func RegisterWriteCmdAtApply(cmdType, cmd string, handle cmdHandle) {
 	RegisteredWriteCmdAtApplyHandles[cmd] = handle
 }
 
-// RegisterWriteCmdAtApply
+// RegisterReadCmdAtApply
 func RegisteredReadCmdAtApply(cmdType, cmd string, handle cmdHandle) {
 	if _, ok := RegisteredReadCmdAtApplyHandles[cmd]; ok {
 		return

@@ -10,13 +10,14 @@ import (
 )
 
 const (
-	CmdTypeSrv    = "srv"
-	CmdTypeBitmap = "bitmap"
-	CmdTypeString = "string"
-	CmdTypeHash   = "hash"
-	CmdTypeList   = "list"
-	CmdTypeSet    = "set"
-	CmdTypeZset   = "zset"
+	CmdTypeSrv     = "srv"
+	CmdTypeReplica = "replica"
+	CmdTypeBitmap  = "bitmap"
+	CmdTypeString  = "string"
+	CmdTypeHash    = "hash"
+	CmdTypeList    = "list"
+	CmdTypeSet     = "set"
+	CmdTypeZset    = "zset"
 )
 
 type KVPair struct {
