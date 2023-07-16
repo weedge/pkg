@@ -26,6 +26,10 @@ type IReplicaSrvConnCmd interface {
 	// Sync internal cmd for slave send sync cmd to master,
 	// slave pull buf (sync logs)
 	Sync(syncLogID uint64) (buf []byte, err error)
+	// Sync internal cmd for slave send fullsync cmd to master,
+	// slave pull master's snapshot file which dump from data kvstore(FSM),
+	// then write to connFD (io.CopyN)
+	FullSync(needNew bool) (err error)
 }
 
 type KVPair struct {
