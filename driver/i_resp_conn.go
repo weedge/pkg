@@ -12,20 +12,39 @@ type IRespConn interface {
 	SetConnName(name string)
 	Name() (name string)
 	DoCmd(ctx context.Context, cmd string, cmdParams [][]byte) (res interface{}, err error)
+	Close() error
 }
 
-type cmdHandle func(ctx context.Context, h IRespConn, cmdParams [][]byte) (interface{}, error)
+type CmdHandle func(ctx context.Context, c IRespConn, cmdParams [][]byte) (interface{}, error)
 
-var RegisteredCmdHandles = map[string]cmdHandle{}
+var RegisteredCmdHandles = map[string]CmdHandle{}
+var RegisteredReplicaCmdHandles = map[string]CmdHandle{}
 var RegisteredCmdSet = map[string][]string{}
 
-// RegisterCmd  register all cmd
-func RegisterCmd(cmdType, cmd string, handle cmdHandle) {
+// RegisterCmd register all cmd
+func RegisterCmd(cmdType, cmd string, handle CmdHandle) {
 	if _, ok := RegisteredCmdHandles[cmd]; ok {
 		return
 	}
-	RegisteredCmdHandles[cmd] = handle
+
+	switch cmdType {
+	case CmdTypeReplica:
+		RegisteredReplicaCmdHandles[cmd] = handle
+	default:
+		RegisteredCmdHandles[cmd] = handle
+	}
 	RegisteredCmdSet[cmdType] = append(RegisteredCmdSet[cmdType], cmd)
+}
+
+func MergeRegisteredCmdHandles(src, dst map[string]CmdHandle, isDelSrc bool) {
+	for k, v := range src {
+		if _, ok := dst[k]; !ok {
+			dst[k] = v
+		}
+		if isDelSrc {
+			delete(src, k)
+		}
+	}
 }
 
 type RespConnBase struct {
@@ -47,6 +66,10 @@ func (c *RespConnBase) Name() (name string) {
 	return c.name
 }
 
+func (c *RespConnBase) Close() error {
+	return nil
+}
+
 func (c *RespConnBase) DoCmd(ctx context.Context, cmd string, cmdParams [][]byte) (res interface{}, err error) {
 	cmd = strings.ToLower(strings.TrimSpace(cmd))
 	f, ok := RegisteredCmdHandles[cmd]
@@ -63,13 +86,13 @@ func (c *RespConnBase) DoCmd(ctx context.Context, cmd string, cmdParams [][]byte
 	return
 }
 
-var RegisteredWriteCmdAtProposeHandles = map[string]cmdHandle{}
-var RegisteredReadCmdAtProposeHandles = map[string]cmdHandle{}
-var RegisteredWriteCmdAtApplyHandles = map[string]cmdHandle{}
-var RegisteredReadCmdAtApplyHandles = map[string]cmdHandle{}
+var RegisteredWriteCmdAtProposeHandles = map[string]CmdHandle{}
+var RegisteredReadCmdAtProposeHandles = map[string]CmdHandle{}
+var RegisteredWriteCmdAtApplyHandles = map[string]CmdHandle{}
+var RegisteredReadCmdAtApplyHandles = map[string]CmdHandle{}
 
 // RegisterWriteCmdAtPropose
-func RegisterWriteCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
+func RegisterWriteCmdAtPropose(cmdType, cmd string, handle CmdHandle) {
 	if _, ok := RegisteredWriteCmdAtProposeHandles[cmd]; ok {
 		return
 	}
@@ -77,7 +100,7 @@ func RegisterWriteCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
 }
 
 // RegisterReadCmdAtPropose
-func RegisteredReadCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
+func RegisteredReadCmdAtPropose(cmdType, cmd string, handle CmdHandle) {
 	if _, ok := RegisteredReadCmdAtProposeHandles[cmd]; ok {
 		return
 	}
@@ -85,7 +108,7 @@ func RegisteredReadCmdAtPropose(cmdType, cmd string, handle cmdHandle) {
 }
 
 // RegisterWriteCmdAtApply
-func RegisterWriteCmdAtApply(cmdType, cmd string, handle cmdHandle) {
+func RegisterWriteCmdAtApply(cmdType, cmd string, handle CmdHandle) {
 	if _, ok := RegisteredWriteCmdAtApplyHandles[cmd]; ok {
 		return
 	}
@@ -93,7 +116,7 @@ func RegisterWriteCmdAtApply(cmdType, cmd string, handle cmdHandle) {
 }
 
 // RegisterReadCmdAtApply
-func RegisteredReadCmdAtApply(cmdType, cmd string, handle cmdHandle) {
+func RegisteredReadCmdAtApply(cmdType, cmd string, handle CmdHandle) {
 	if _, ok := RegisteredReadCmdAtApplyHandles[cmd]; ok {
 		return
 	}
