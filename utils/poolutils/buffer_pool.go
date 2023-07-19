@@ -13,12 +13,23 @@ type BufferPool struct {
 	sync.Pool
 }
 
+// NewBuffPool with buffer len cap
+func NewBuffPoolWithLen(bufferLen, bufferCap int) (bufferpool *BufferPool) {
+	return &BufferPool{
+		sync.Pool{
+			New: func() interface{} {
+				return bytes.NewBuffer(make([]byte, bufferLen, bufferCap))
+			},
+		},
+	}
+}
+
 // NewBufferPool with buffer size
 func NewBufferPool(bufferSize int) (bufferpool *BufferPool) {
 	return &BufferPool{
 		sync.Pool{
 			New: func() interface{} {
-				return bytes.NewBuffer(make([]byte, 0, bufferSize))
+				return bytes.NewBuffer(make([]byte, bufferSize))
 			},
 		},
 	}
