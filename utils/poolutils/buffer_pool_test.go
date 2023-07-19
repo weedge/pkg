@@ -2,6 +2,7 @@ package poolutils
 
 import (
 	"bytes"
+	"encoding/binary"
 	"testing"
 )
 
@@ -82,5 +83,31 @@ func Benchmark_TestBufferPool(b *testing.B) {
 			buf.WriteString(str)
 		}
 		buffers.Put(buf)
+	}
+}
+
+// this is counter-example for binlog uint* encode
+func Benchmark_TestBuffPoolBinlog(b *testing.B) {
+	b.StopTimer()
+	var buffers = NewBuffPoolWithLen(0, 8)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		buf := buffers.Get()
+		for j := 0; j < count; j++ {
+			binary.Write(buf, binary.BigEndian, uint64(1))
+			_ = buf.Bytes()
+		}
+		buffers.Put(buf)
+	}
+}
+
+func Benchmark_TestBinlog(b *testing.B) {
+	b.StopTimer()
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < count; j++ {
+			key := make([]byte, 8)
+			binary.BigEndian.PutUint64(key, uint64(1))
+		}
 	}
 }
