@@ -27,13 +27,17 @@ func RegisterCmd(cmdType, cmd string, handle CmdHandle) {
 		return
 	}
 
+	RegisteredCmdSet[cmdType] = append(RegisteredCmdSet[cmdType], cmd)
+
+	if handle == nil {
+		return
+	}
 	switch cmdType {
 	case CmdTypeReplica:
 		RegisteredReplicaCmdHandles[cmd] = handle
 	default:
 		RegisteredCmdHandles[cmd] = handle
 	}
-	RegisteredCmdSet[cmdType] = append(RegisteredCmdSet[cmdType], cmd)
 }
 
 func MergeRegisteredCmdHandles(src, dst map[string]CmdHandle, isDelSrc bool) {
