@@ -18,18 +18,58 @@ const (
 	CmdTypeList    = "list"
 	CmdTypeSet     = "set"
 	CmdTypeZset    = "zset"
+	CmdTypeSlot    = "slot"
 )
 
 type IReplicaSrvConnCmd interface {
 	// Replicaof client cmd in slave
-	Replicaof(masterAddr string, restart bool, readonly bool) error
+	Replicaof(ctx context.Context, string, restart bool, readonly bool) error
 	// Sync internal cmd for slave send sync cmd to master,
 	// slave pull buf (sync logs)
-	Sync(syncLogID uint64) (buf []byte, err error)
+	Sync(ctx context.Context, syncLogID uint64) (buf []byte, err error)
 	// Sync internal cmd for slave send fullsync cmd to master,
 	// slave pull master's snapshot file which dump from data kvstore(FSM),
 	// then write to connFD (io.CopyN)
-	FullSync(needNew bool) (err error)
+	FullSync(ctx context.Context, needNew bool) (err error)
+}
+
+type SlotsRestoreObj struct {
+	Key, Val []byte
+	TTLms    int64
+}
+
+type SlotInfo struct {
+	Num  uint64
+	Size uint64
+}
+
+type ISlotsCmd interface {
+	// MigrateSlotOneKey migrate slot one key/val to addr with timeout (ms)
+	// return 1, success, 0 slot is empty
+	MigrateSlotOneKey(ctx context.Context, addr string, timeout time.Duration, slot uint64) (int64, error)
+	// MigrateSlotKeyWithSameTag migrate slot keys/vals  which have the same tag with one key to addr with timeout (ms)
+	// return n, success, 0 slot is empty
+	MigrateSlotKeyWithSameTag(ctx context.Context, addr string, timeout time.Duration, slot uint64) (int64, error)
+	// MigrateOneKey migrate one key/val to addr with timeout (ms)
+	// return 1, success, 0 slot is empty
+	MigrateOneKey(ctx context.Context, addr string, timeout time.Duration, key []byte) (int64, error)
+	// MigrateKeyWithSameTag migrate keys/vals which have the same tag with one key to addr with timeout (ms)
+	// return n, n migrate success, 0 slot is empty
+	MigrateKeyWithSameTag(ctx context.Context, addr string, timeout time.Duration, key []byte) (int64, error)
+	// SlotsRestore dest migrate addr restore slot obj [key ttlms value ...]
+	SlotsRestore(ctx context.Context, objs ...*SlotsRestoreObj) error
+	// SlotsInfo show slot info with slots range [start,start+count]
+	// return slotInfo slice
+	SlotsInfo(ctx context.Context, startSlot, count uint64) ([]SlotInfo, error)
+	// SlotsHashKey hash keys to slots, return slot slice
+	SlotsHashKey(ctx context.Context, keys ...[]byte) ([]uint64, error)
+	// SlotsDel del slots, return after del slot info
+	SlotsDel(ctx context.Context, slots ...uint64) ([]SlotInfo, error)
+	// SlotsCheck slots  must check below case
+	// - The key stored in each slot can find the corresponding val in the db
+	// - Keys in each db can be found in the corresponding slot
+	// WARNING: just used debug/test, don't use in product,
+	SlotsCheck(ctx context.Context) error
 }
 
 type KVPair struct {
@@ -200,6 +240,8 @@ type IDB interface {
 	DBSet() ISetCmd
 	DBZSet() IZsetCmd
 	DBBitmap() IBitmapCmd
+
+	DBSlot() ISlotsCmd
 }
 
 type IStorager interface {

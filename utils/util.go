@@ -60,3 +60,17 @@ func GetProto(addr string) string {
 		return "tcp"
 	}
 }
+
+func ConcatBytes(slices [][]byte) []byte {
+	var totalLen int
+	for _, s := range slices {
+		totalLen += len(s)
+	}
+	tmp := make([]byte, totalLen)
+	i := 0
+	for _, s := range slices {
+		i += copy(tmp[i:], s)
+	}
+
+	return tmp
+}
