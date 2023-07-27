@@ -56,7 +56,7 @@ type ISlotsCmd interface {
 	// MigrateKeyWithSameTag migrate keys/vals which have the same tag with one key to addr with timeout (ms)
 	// return n, n migrate success, 0 slot is empty
 	MigrateKeyWithSameTag(ctx context.Context, addr string, timeout time.Duration, key []byte) (int64, error)
-	// SlotsRestore dest migrate addr restore slot obj [key ttlms value ...]
+	// SlotsRestore dest migrate addr restore slot obj [key ttlms serialized-value(rdb) ...]
 	SlotsRestore(ctx context.Context, objs ...*SlotsRestoreObj) error
 	// SlotsInfo show slot info with slots range [start,start+count]
 	// return slotInfo slice
@@ -240,7 +240,10 @@ type IDB interface {
 	DBSet() ISetCmd
 	DBZSet() IZsetCmd
 	DBBitmap() IBitmapCmd
+}
 
+type IDBSlots interface {
+	IDB
 	DBSlot() ISlotsCmd
 }
 
@@ -250,6 +253,11 @@ type IStorager interface {
 	Open(ctx context.Context) error
 	Close() error
 	Name() string
+}
+
+type IStatsStorager interface {
+	IStorager
+	StatsInfo(sections ...string) (info map[string][]InfoPair)
 }
 
 var storagers = map[string]IStorager{}

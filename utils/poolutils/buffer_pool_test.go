@@ -36,19 +36,17 @@ func Benchmark_TestBuffer(b *testing.B) {
 	}
 }
 
-func BenchmarkJI_TestBufferPool_Parallel(b *testing.B) {
+func Benchmark_TestBufferPool(b *testing.B) {
 	b.StopTimer()
 	var buffers = NewBufferPool(516)
 	b.StartTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			buf := buffers.Get()
-			for j := 0; j < count; j++ {
-				buf.WriteString(str)
-			}
-			buffers.Put(buf)
+	for i := 0; i < b.N; i++ {
+		buf := buffers.Get()
+		for j := 0; j < count; j++ {
+			buf.WriteString(str)
 		}
-	})
+		buffers.Put(buf)
+	}
 }
 
 func BenchmarkJI_TestStringAppend_Parallel(b *testing.B) {
@@ -73,17 +71,19 @@ func BenchmarkJI_TestBuffer_Parallel(b *testing.B) {
 	})
 }
 
-func Benchmark_TestBufferPool(b *testing.B) {
+func BenchmarkJI_TestBufferPool_Parallel(b *testing.B) {
 	b.StopTimer()
 	var buffers = NewBufferPool(516)
 	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		buf := buffers.Get()
-		for j := 0; j < count; j++ {
-			buf.WriteString(str)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			buf := buffers.Get()
+			for j := 0; j < count; j++ {
+				buf.WriteString(str)
+			}
+			buffers.Put(buf)
 		}
-		buffers.Put(buf)
-	}
+	})
 }
 
 // this is counter-example for binlog uint* encode
