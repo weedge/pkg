@@ -34,6 +34,7 @@ type IReplicaSrvConnCmd interface {
 }
 
 type SlotsRestoreObj struct {
+	DB       int32
 	Key, Val []byte
 	TTLms    int64
 }
@@ -50,8 +51,8 @@ type ISlotsCmd interface {
 	// MigrateSlotKeyWithSameTag migrate slot keys/vals  which have the same tag with one key to addr with timeout (ms)
 	// return n, success, 0 slot is empty
 	MigrateSlotKeyWithSameTag(ctx context.Context, addr string, timeout time.Duration, slot uint64) (int64, error)
-	// MigrateOneKey migrate one key/val to addr with timeout (ms)
-	// return 1, success, 0 slot is empty
+	// MigrateOneKey migrate one key/val (no hash tag  tag=key) to addr with timeout (ms)
+	// return n (same key, diff dataType), success, 0 slot is empty
 	MigrateOneKey(ctx context.Context, addr string, timeout time.Duration, key []byte) (int64, error)
 	// MigrateKeyWithSameTag migrate keys/vals which have the same tag with one key to addr with timeout (ms)
 	// return n, n migrate success, 0 slot is empty
@@ -60,11 +61,11 @@ type ISlotsCmd interface {
 	SlotsRestore(ctx context.Context, objs ...*SlotsRestoreObj) error
 	// SlotsInfo show slot info with slots range [start,start+count]
 	// return slotInfo slice
-	SlotsInfo(ctx context.Context, startSlot, count uint64) ([]SlotInfo, error)
+	SlotsInfo(ctx context.Context, startSlot, count uint64) ([]*SlotInfo, error)
 	// SlotsHashKey hash keys to slots, return slot slice
 	SlotsHashKey(ctx context.Context, keys ...[]byte) ([]uint64, error)
 	// SlotsDel del slots, return after del slot info
-	SlotsDel(ctx context.Context, slots ...uint64) ([]SlotInfo, error)
+	SlotsDel(ctx context.Context, slots ...uint64) ([]*SlotInfo, error)
 	// SlotsCheck slots  must check below case
 	// - The key stored in each slot can find the corresponding val in the db
 	// - Keys in each db can be found in the corresponding slot

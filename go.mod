@@ -5,13 +5,14 @@ go 1.19
 require (
 	github.com/apache/thrift v0.13.0
 	github.com/cloudwego/kitex v0.5.2
+	github.com/cupcake/rdb v0.0.0-20161107195141-43ba34106c76
 	github.com/kitex-contrib/obs-opentelemetry/logging/zap v0.0.0-20230512024524-5f5a227105f7
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.24.0
-	golang.org/x/sys v0.8.0
+	golang.org/x/sys v0.10.0
 )
 
 require (
