@@ -61,7 +61,8 @@ type ISlotsCmd interface {
 	SlotsRestore(ctx context.Context, objs ...*SlotsRestoreObj) error
 	// SlotsInfo show slot info with slots range [start,start+count]
 	// return slotInfo slice
-	SlotsInfo(ctx context.Context, startSlot, count uint64) ([]*SlotInfo, error)
+	// if withSize is true, slotInfo.Size is keys cn; else exits key is 1, or 0
+	SlotsInfo(ctx context.Context, startSlot, count uint64, withSize bool) ([]*SlotInfo, error)
 	// SlotsHashKey hash keys to slots, return slot slice
 	SlotsHashKey(ctx context.Context, keys ...[]byte) ([]uint64, error)
 	// SlotsDel del slots, return after del slot info

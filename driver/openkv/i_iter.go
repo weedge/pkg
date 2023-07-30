@@ -14,4 +14,6 @@ type IIterator interface {
 
 	Key() []byte
 	Value() []byte
+
+	Error() error
 }
