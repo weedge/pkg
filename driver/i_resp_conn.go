@@ -6,7 +6,10 @@ import (
 	"strings"
 )
 
+// IRespConn resp conn session
 type IRespConn interface {
+	SetStorager(db IStorager)
+	Storager() (store IStorager)
 	SetDb(db IDB)
 	Db() (db IDB)
 	SetConnName(name string)
@@ -52,8 +55,16 @@ func MergeRegisteredCmdHandles(src, dst map[string]CmdHandle, isDelSrc bool) {
 }
 
 type RespConnBase struct {
-	db   IDB
-	name string
+	store IStorager
+	db    IDB
+	name  string
+}
+
+func (c *RespConnBase) SetStorager(store IStorager) {
+	c.store = store
+}
+func (c *RespConnBase) Storager() (store IStorager) {
+	return c.store
 }
 
 func (c *RespConnBase) SetDb(db IDB) {
