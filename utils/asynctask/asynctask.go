@@ -30,9 +30,15 @@ func (t *AsyncTask) Close() {
 	t.wg.Wait()
 }
 
-func NewAsyncTask(name string, taskChanNumber int64, goNumber int, onError func(err error)) (*AsyncTask, error) {
+func GetNamedAsyncTask(name string, taskChanNumber int64, goNumber int, onError func(err error)) (*AsyncTask, error) {
 	if ok := asyncTaskNames.Contains(name); ok {
 		return nil, fmt.Errorf("asynctask name duplicated: %v", name)
+	}
+	if taskChanNumber < 1 {
+		taskChanNumber = 1
+	}
+	if goNumber < 1 {
+		goNumber = 1
 	}
 	asyncTaskNames.Add(name)
 

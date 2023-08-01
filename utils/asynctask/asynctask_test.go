@@ -27,14 +27,14 @@ func (m *testTask) Run() (err error) {
 }
 
 func TestNewAsyncTask(t *testing.T) {
-	asyncTask, err := NewAsyncTask("async.task.test", 3, 3, func(err error) {
+	asyncTask, err := GetNamedAsyncTask("async.task.test", 3, 3, func(err error) {
 	})
 	if err != nil {
 		t.Fatal(err.Error())
 		return
 	}
 
-	_, err = NewAsyncTask("async.task.test", 3, 3, func(err error) {
+	_, err = GetNamedAsyncTask("async.task.test", 3, 3, func(err error) {
 	})
 	if err == nil {
 		t.Fatal("no error")
@@ -46,7 +46,7 @@ func TestNewAsyncTask(t *testing.T) {
 }
 
 func ExampleAsyncTask_Post() {
-	asyncTask, err := NewAsyncTask("async.task.test", 3, 3, func(err error) {
+	asyncTask, err := GetNamedAsyncTask("async.task.test", 3, 3, func(err error) {
 		fmt.Println("Run err", err.Error())
 	})
 	if err != nil {
