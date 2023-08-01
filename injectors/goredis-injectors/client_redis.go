@@ -8,6 +8,26 @@ import (
 	"github.com/weedge/pkg/option"
 )
 
+type RedisClientCommonOptions struct {
+	Password string `mapstructure:"password"`
+	Username string `mapstructure:"username"`
+
+	MaxRetries      int           `mapstructure:"maxRetries"`
+	MinRetryBackoff time.Duration `mapstructure:"minRetryBackoff"`
+	MaxRetryBackoff time.Duration `mapstructure:"maxRetryBackoff"`
+	DialTimeout     time.Duration `mapstructure:"dialTimeout"`
+	ReadTimeout     time.Duration `mapstructure:"readTimeout"`
+	WriteTimeout    time.Duration `mapstructure:"writeTimeout"`
+
+	// connect pool
+	PoolSize     int           `mapstructure:"poolSize"`
+	MinIdleConns int           `mapstructure:"minIdleConns"`
+	MaxIdleConns int           `mapstructure:"maxIdleConns"`
+	MaxConnAge   time.Duration `mapstructure:"maxConnAge"`
+	PoolTimeout  time.Duration `mapstructure:"poolTimeout"`
+	IdleTimeout  time.Duration `mapstructure:"idleTimeout"`
+}
+
 type RedisClientOptions struct {
 	Addr string `mapstructure:"addr"`
 	Db   int    `mapstructure:"db"`
@@ -90,25 +110,29 @@ func WithRedisClientCommonOptions(opts RedisClientCommonOptions) option.Option {
 
 func DefaultRedisClientOptions() *RedisClientOptions {
 	return &RedisClientOptions{
-		Addr: "localhost:6379",
-		RedisClientCommonOptions: RedisClientCommonOptions{
-			Password: "",
-			Username: "",
+		Addr:                     "localhost:6379",
+		RedisClientCommonOptions: *DefaultRedisClientCommonOptions(),
+	}
+}
 
-			MaxRetries:      3,
-			MinRetryBackoff: 3 * time.Second,
-			MaxRetryBackoff: 5 * time.Second,
-			DialTimeout:     5 * time.Second,
-			ReadTimeout:     3 * time.Second,
-			WriteTimeout:    3 * time.Second,
+func DefaultRedisClientCommonOptions() *RedisClientCommonOptions {
+	return &RedisClientCommonOptions{
+		Password: "",
+		Username: "",
 
-			// connect pool
-			PoolSize:     100,
-			MinIdleConns: 10,
-			MaxConnAge:   60 * time.Second,
-			PoolTimeout:  5 * time.Second,
-			IdleTimeout:  30 * time.Second,
-		},
+		MaxRetries:      3,
+		MinRetryBackoff: 3 * time.Second,
+		MaxRetryBackoff: 5 * time.Second,
+		DialTimeout:     5 * time.Second,
+		ReadTimeout:     3 * time.Second,
+		WriteTimeout:    3 * time.Second,
+
+		// connect pool
+		PoolSize:     100,
+		MinIdleConns: 10,
+		MaxConnAge:   60 * time.Second,
+		PoolTimeout:  5 * time.Second,
+		IdleTimeout:  30 * time.Second,
 	}
 }
 

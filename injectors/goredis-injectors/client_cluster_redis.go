@@ -2,7 +2,6 @@ package goredisinjectors
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/weedge/pkg/option"
@@ -67,49 +66,12 @@ func WithGoRedisClusterOpts(opts *redis.ClusterOptions) option.Option {
 	})
 }
 
-type RedisClientCommonOptions struct {
-	Password string `mapstructure:"password"`
-	Username string `mapstructure:"username"`
-
-	MaxRetries      int           `mapstructure:"maxRetries"`
-	MinRetryBackoff time.Duration `mapstructure:"minRetryBackoff"`
-	MaxRetryBackoff time.Duration `mapstructure:"maxRetryBackoff"`
-	DialTimeout     time.Duration `mapstructure:"dialTimeout"`
-	ReadTimeout     time.Duration `mapstructure:"readTimeout"`
-	WriteTimeout    time.Duration `mapstructure:"writeTimeout"`
-
-	// connect pool
-	PoolSize     int           `mapstructure:"poolSize"`
-	MinIdleConns int           `mapstructure:"minIdleConns"`
-	MaxIdleConns int           `mapstructure:"maxIdleConns"`
-	MaxConnAge   time.Duration `mapstructure:"maxConnAge"`
-	PoolTimeout  time.Duration `mapstructure:"poolTimeout"`
-	IdleTimeout  time.Duration `mapstructure:"idleTimeout"`
-}
-
 func DefaultRedisClusterClientOptions() *RedisClusterClientOptions {
 	return &RedisClusterClientOptions{
 		//Addrs:    []string{":26379"},
-		Addrs: []string{":26379", ":26380", ":26381", ":26382", ":26383", ":26384"},
-		RedisClientCommonOptions: RedisClientCommonOptions{
-			Password: "",
-			Username: "",
-
-			MaxRetries:      3,
-			MinRetryBackoff: 3 * time.Second,
-			MaxRetryBackoff: 5 * time.Second,
-			DialTimeout:     5 * time.Second,
-			ReadTimeout:     3 * time.Second,
-			WriteTimeout:    3 * time.Second,
-
-			// connect pool
-			PoolSize:     100,
-			MinIdleConns: 10,
-			MaxConnAge:   60 * time.Second,
-			PoolTimeout:  5 * time.Second,
-			IdleTimeout:  30 * time.Second,
-		},
-		Route: "randomly",
+		Addrs:                    []string{":26379", ":26380", ":26381", ":26382", ":26383", ":26384"},
+		RedisClientCommonOptions: *DefaultRedisClientCommonOptions(),
+		Route:                    "randomly",
 	}
 }
 
