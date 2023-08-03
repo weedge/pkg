@@ -16,19 +16,19 @@ const (
 type ListObject struct {
 	key string
 
-	elements []string
+	Elements []string
 }
 
 func (o *ListObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
 	o.key = key
 	switch typeByte {
-	case rdbTypeList:
+	case RDBTypeList:
 		o.readList(rd)
-	case rdbTypeListZiplist:
-		o.elements = structure.ReadZipList(rd)
-	case rdbTypeListQuicklist:
+	case RDBTypeListZiplist:
+		o.Elements = structure.ReadZipList(rd)
+	case RDBTypeListQuicklist:
 		o.readQuickList(rd)
-	case rdbTypeListQuicklist2:
+	case RDBTypeListQuicklist2:
 		o.readQuickList2(rd)
 	default:
 		logutils.Criticalf("unknown list type %d", typeByte)
@@ -36,8 +36,8 @@ func (o *ListObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
 }
 
 func (o *ListObject) Rewrite() []RedisCmd {
-	cmds := make([]RedisCmd, len(o.elements))
-	for inx, ele := range o.elements {
+	cmds := make([]RedisCmd, len(o.Elements))
+	for inx, ele := range o.Elements {
 		cmd := RedisCmd{"rpush", o.key, ele}
 		cmds[inx] = cmd
 	}
@@ -48,7 +48,7 @@ func (o *ListObject) readList(rd io.Reader) {
 	size := int(structure.ReadLength(rd))
 	for i := 0; i < size; i++ {
 		ele := structure.ReadString(rd)
-		o.elements = append(o.elements, ele)
+		o.Elements = append(o.Elements, ele)
 	}
 }
 
@@ -56,7 +56,7 @@ func (o *ListObject) readQuickList(rd io.Reader) {
 	size := int(structure.ReadLength(rd))
 	for i := 0; i < size; i++ {
 		ziplistElements := structure.ReadZipList(rd)
-		o.elements = append(o.elements, ziplistElements...)
+		o.Elements = append(o.Elements, ziplistElements...)
 	}
 }
 
@@ -66,10 +66,10 @@ func (o *ListObject) readQuickList2(rd io.Reader) {
 		container := structure.ReadLength(rd)
 		if container == quicklistNodeContainerPlain {
 			ele := structure.ReadString(rd)
-			o.elements = append(o.elements, ele)
+			o.Elements = append(o.Elements, ele)
 		} else if container == quicklistNodeContainerPacked {
 			listpackElements := structure.ReadListpack(rd)
-			o.elements = append(o.elements, listpackElements...)
+			o.Elements = append(o.Elements, listpackElements...)
 		} else {
 			logutils.Criticalf("unknown quicklist container %d", container)
 		}

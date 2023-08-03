@@ -11,7 +11,7 @@ type ModuleObject struct {
 }
 
 func (o *ModuleObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
-	if typeByte == rdbTypeModule {
+	if typeByte == RDBTypeModule {
 		logutils.Criticalf("module type with version 1 is not supported, key=[%s]", key)
 	}
 	moduleId := structure.ReadLength(rd)

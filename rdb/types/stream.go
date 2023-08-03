@@ -48,9 +48,9 @@ type StreamObject struct {
 func (o *StreamObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
 	o.key = key
 	switch typeByte {
-	case rdbTypeStreamListpacks:
+	case RDBTypeStreamListpacks:
 		o.readStream(rd, key, typeByte)
-	case rdbTypeStreamListpacks2:
+	case RDBTypeStreamListpacks2:
 		o.readStream(rd, key, typeByte)
 	default:
 		logutils.Criticalf("unknown hash type. typeByte=[%d]", typeByte)
@@ -139,7 +139,7 @@ func (o *StreamObject) readStream(rd io.Reader, masterKey string, typeByte byte)
 	 * in case of XDEL lastid. */
 	o.cmds = append(o.cmds, []string{"xsetid", masterKey, lastid})
 
-	if typeByte == rdbTypeStreamListpacks2 {
+	if typeByte == RDBTypeStreamListpacks2 {
 		/* Load the first entry ID. */
 		_ = structure.ReadLength(rd) // first_ms
 		_ = structure.ReadLength(rd) // first_seq
@@ -169,7 +169,7 @@ func (o *StreamObject) readStream(rd io.Reader, masterKey string, typeByte byte)
 		o.cmds = append(o.cmds, []string{"CREATE", masterKey, groupName, lastid})
 
 		/* Load group offset. */
-		if typeByte == rdbTypeStreamListpacks2 {
+		if typeByte == RDBTypeStreamListpacks2 {
 			_ = structure.ReadLength(rd) // offset
 		}
 

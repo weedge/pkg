@@ -9,16 +9,16 @@ import (
 
 type SetObject struct {
 	key      string
-	elements []string
+	Elements []string
 }
 
 func (o *SetObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
 	o.key = key
 	switch typeByte {
-	case rdbTypeSet:
+	case RDBTypeSet:
 		o.readSet(rd)
-	case rdbTypeSetIntset:
-		o.elements = structure.ReadIntset(rd)
+	case RDBTypeSetIntset:
+		o.Elements = structure.ReadIntset(rd)
 	default:
 		logutils.Criticalf("unknown set type. typeByte=[%d]", typeByte)
 	}
@@ -26,16 +26,16 @@ func (o *SetObject) LoadFromBuffer(rd io.Reader, key string, typeByte byte) {
 
 func (o *SetObject) readSet(rd io.Reader) {
 	size := int(structure.ReadLength(rd))
-	o.elements = make([]string, size)
+	o.Elements = make([]string, size)
 	for i := 0; i < size; i++ {
 		val := structure.ReadString(rd)
-		o.elements[i] = val
+		o.Elements[i] = val
 	}
 }
 
 func (o *SetObject) Rewrite() []RedisCmd {
-	cmds := make([]RedisCmd, len(o.elements))
-	for inx, ele := range o.elements {
+	cmds := make([]RedisCmd, len(o.Elements))
+	for inx, ele := range o.Elements {
 		cmd := RedisCmd{"sadd", o.key, ele}
 		cmds[inx] = cmd
 	}

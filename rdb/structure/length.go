@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	RDB6ByteLen  = 0 // RDB_6BITLEN
-	RDB14ByteLen = 1 // RDB_14BITLEN
-	len32or64Bit = 2
-	lenSpecial   = 3 // RDB_ENCVAL
-	RDB32ByteLen = 0x80
-	RDB64ByteLen = 0x81
+	RDB6BitLen      = 0 // RDB_6BITLEN
+	RDB14BitLen     = 1 // RDB_14BITLEN
+	RDB32or64BitLen = 2
+	RDBEncVal       = 3 // RDB_ENCVAL
+	RDB32BitLen     = 0x80
+	RDB64BitLen     = 0x81
 )
 
 func ReadLength(rd io.Reader) uint64 {
@@ -34,19 +34,19 @@ func readEncodedLength(rd io.Reader) (length uint64, special bool, err error) {
 	firstByte := ReadByte(rd)
 	first2bits := (firstByte & 0xc0) >> 6 // first 2 bits of encoding
 	switch first2bits {
-	case RDB6ByteLen:
+	case RDB6BitLen:
 		length = uint64(firstByte) & 0x3f
-	case RDB14ByteLen:
+	case RDB14BitLen:
 		nextByte := ReadByte(rd)
 		length = (uint64(firstByte)&0x3f)<<8 | uint64(nextByte)
-	case len32or64Bit:
-		if firstByte == RDB32ByteLen {
+	case RDB32or64BitLen:
+		if firstByte == RDB32BitLen {
 			_, err = io.ReadFull(rd, lengthBuffer[0:4])
 			if err != nil {
 				return 0, false, fmt.Errorf("read len32Bit failed: %s", err.Error())
 			}
 			length = uint64(binary.BigEndian.Uint32(lengthBuffer))
-		} else if firstByte == RDB64ByteLen {
+		} else if firstByte == RDB64BitLen {
 			_, err = io.ReadFull(rd, lengthBuffer)
 			if err != nil {
 				return 0, false, fmt.Errorf("read len64Bit failed: %s", err.Error())
@@ -55,7 +55,7 @@ func readEncodedLength(rd io.Reader) (length uint64, special bool, err error) {
 		} else {
 			return 0, false, fmt.Errorf("illegal length encoding: %x", firstByte)
 		}
-	case lenSpecial:
+	case RDBEncVal:
 		special = true
 		length = uint64(firstByte) & 0x3f
 	}

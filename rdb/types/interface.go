@@ -24,28 +24,28 @@ const (
 )
 
 const (
-	rdbTypeString  = 0 // RDB_TYPE_STRING
-	rdbTypeList    = 1
-	rdbTypeSet     = 2
-	rdbTypeZSet    = 3
-	rdbTypeHash    = 4 // RDB_TYPE_HASH
-	rdbTypeZSet2   = 5 // ZSET version 2 with doubles stored in binary.
-	rdbTypeModule  = 6 // RDB_TYPE_MODULE
-	rdbTypeModule2 = 7 // RDB_TYPE_MODULE2 Module value with annotations for parsing without the generating module being loaded.
+	RDBTypeString  = 0 // RDB_TYPE_STRING
+	RDBTypeList    = 1
+	RDBTypeSet     = 2
+	RDBTypeZSet    = 3
+	RDBTypeHash    = 4 // RDB_TYPE_HASH
+	RDBTypeZSet2   = 5 // ZSET version 2 with doubles stored in binary.
+	RDBTypeModule  = 6 // RDB_TYPE_MODULE
+	RDBTypeModule2 = 7 // RDB_TYPE_MODULE2 Module value with annotations for parsing without the generating module being loaded.
 
 	// Object types for encoded objects.
 
-	rdbTypeHashZipmap       = 9
-	rdbTypeListZiplist      = 10
-	rdbTypeSetIntset        = 11
-	rdbTypeZSetZiplist      = 12
-	rdbTypeHashZiplist      = 13
-	rdbTypeListQuicklist    = 14 // RDB_TYPE_LIST_QUICKLIST
-	rdbTypeStreamListpacks  = 15 // RDB_TYPE_STREAM_LISTPACKS
-	rdbTypeHashListpack     = 16 // RDB_TYPE_HASH_ZIPLIST
-	rdbTypeZSetListpack     = 17 // RDB_TYPE_ZSET_LISTPACK
-	rdbTypeListQuicklist2   = 18 // RDB_TYPE_LIST_QUICKLIST_2 https://github.com/redis/redis/pull/9357
-	rdbTypeStreamListpacks2 = 19 // RDB_TYPE_STREAM_LISTPACKS2
+	RDBTypeHashZipmap       = 9
+	RDBTypeListZiplist      = 10
+	RDBTypeSetIntset        = 11
+	RDBTypeZSetZiplist      = 12
+	RDBTypeHashZiplist      = 13
+	RDBTypeListQuicklist    = 14 // RDB_TYPE_LIST_QUICKLIST
+	RDBTypeStreamListpacks  = 15 // RDB_TYPE_STREAM_LISTPACKS
+	RDBTypeHashListpack     = 16 // RDB_TYPE_HASH_ZIPLIST
+	RDBTypeZSetListpack     = 17 // RDB_TYPE_ZSET_LISTPACK
+	RDBTypeListQuicklist2   = 18 // RDB_TYPE_LIST_QUICKLIST_2 https://github.com/redis/redis/pull/9357
+	RDBTypeStreamListpacks2 = 19 // RDB_TYPE_STREAM_LISTPACKS2
 
 	moduleTypeNameCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
@@ -67,31 +67,31 @@ type RedisObject interface {
 
 func ParseObject(rd io.Reader, typeByte byte, key string) RedisObject {
 	switch typeByte {
-	case rdbTypeString: // string
+	case RDBTypeString: // string
 		o := new(StringObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeList, rdbTypeListZiplist, rdbTypeListQuicklist, rdbTypeListQuicklist2: // list
+	case RDBTypeList, RDBTypeListZiplist, RDBTypeListQuicklist, RDBTypeListQuicklist2: // list
 		o := new(ListObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeSet, rdbTypeSetIntset: // set
+	case RDBTypeSet, RDBTypeSetIntset: // set
 		o := new(SetObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeZSet, rdbTypeZSet2, rdbTypeZSetZiplist, rdbTypeZSetListpack: // zset
+	case RDBTypeZSet, RDBTypeZSet2, RDBTypeZSetZiplist, RDBTypeZSetListpack: // zset
 		o := new(ZsetObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeHash, rdbTypeHashZipmap, rdbTypeHashZiplist, rdbTypeHashListpack: // hash
+	case RDBTypeHash, RDBTypeHashZipmap, RDBTypeHashZiplist, RDBTypeHashListpack: // hash
 		o := new(HashObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeStreamListpacks, rdbTypeStreamListpacks2: // stream
+	case RDBTypeStreamListpacks, RDBTypeStreamListpacks2: // stream
 		o := new(StreamObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o
-	case rdbTypeModule, rdbTypeModule2: // module
+	case RDBTypeModule, RDBTypeModule2: // module
 		o := new(ModuleObject)
 		o.LoadFromBuffer(rd, key, typeByte)
 		return o

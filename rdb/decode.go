@@ -4,13 +4,65 @@ package rdb
 // Licensed under the MIT (MIT-LICENSE.txt) license.
 
 import (
+	"bytes"
 	"fmt"
+	"strconv"
 
 	"github.com/cupcake/rdb"
 	"github.com/cupcake/rdb/nopdecoder"
+	"github.com/weedge/pkg/rdb/structure"
+	"github.com/weedge/pkg/rdb/types"
+	"github.com/weedge/pkg/utils"
 )
 
 func DecodeDump(p []byte) (interface{}, error) {
+	rd := bytes.NewReader(p)
+	typeByte := structure.ReadByte(rd)
+	//key := structure.ReadString(rd)
+	o := types.ParseObject(rd, typeByte, "")
+	switch item := o.(type) {
+	case *types.StringObject:
+		return String(item.Value), nil
+	case *types.HashObject:
+		data := make(Hash, len(item.Value))
+		i := 0
+		for f, v := range item.Value {
+			data[i].Field = utils.String2Bytes(f)
+			data[i].Value = utils.String2Bytes(v)
+			i++
+		}
+		return data, nil
+	case *types.ListObject:
+		data := make(List, len(item.Elements))
+		for i := range item.Elements {
+			data[i] = utils.String2Bytes(item.Elements[i])
+			data[i] = utils.String2Bytes(item.Elements[i])
+		}
+		return data, nil
+	case *types.SetObject:
+		data := make(Set, len(item.Elements))
+		for i := range item.Elements {
+			data[i] = utils.String2Bytes(item.Elements[i])
+			data[i] = utils.String2Bytes(item.Elements[i])
+		}
+		return data, nil
+	case *types.ZsetObject:
+		data := make(ZSet, len(item.Elements))
+		for i := range item.Elements {
+			data[i].Member = utils.String2Bytes(item.Elements[i].Member)
+			if s, err := strconv.ParseFloat(item.Elements[i].Score, 64); err == nil {
+				return nil, err
+			} else {
+				data[i].Score = s
+			}
+		}
+		return data, nil
+	}
+
+	return nil, nil
+}
+
+func decodeDump(p []byte) (interface{}, error) {
 	d := &decoder{}
 	if err := rdb.DecodeDump(p, 0, nil, 0, d); err != nil {
 		return nil, err
